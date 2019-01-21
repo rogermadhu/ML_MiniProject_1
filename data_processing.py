@@ -3,6 +3,7 @@ import json
 import string
 import operator
 from collections import *
+from statsmodels.regression.linear_model import OLS
 
 class OrderedCounter(Counter, OrderedDict):
     pass
@@ -15,7 +16,7 @@ class OrderedCounter(Counter, OrderedDict):
  - sentiment analysis
 """
 
-def add_features(top_words, data):
+def get_features(top_words, data):
     # Word count feature
     # 100 data points
     x_train = np.zeros((10000, 161))
@@ -42,26 +43,43 @@ def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
 
-def calculate_gradient_descent(X, Y, coeff, bias, learning_rate):
-    # def update_weights(radio, sales, weight, bias, learning_rate):
-    coeff_deriv = 0
-    bias_deriv = 0
-    comments = len(X.shape[0])
+# def calculate_gradient_descent(X, Y, coeff, bias, learning_rate):
+#     # def update_weights(radio, sales, weight, bias, learning_rate):
+#     coeff_deriv = 0
+#     bias_deriv = 0
+#     comments = len(X.shape[0])
 
-    for i in range(comments):
-            # Calculate partial derivatives
-            # -2x(y - (mx + b))
-        coeff_deriv += -2 * X[i] * (Y[i] - (coeff * X[i] + bias))
+#     for i in range(comments):
+#             # Calculate partial derivatives
+#             # -2x(y - (mx + b))
+#         coeff_deriv += -2 * X[i] * (Y[i] - (coeff * X[i] + bias))
 
-            # -2(y - (mx + b))
-        bias_deriv += -2 * (Y[i] - (coeff * X[i] + bias))
+#             # -2(y - (mx + b))
+#         bias_deriv += -2 * (Y[i] - (coeff * X[i] + bias))
 
-        # We subtract because the derivatives point in direction of steepest ascent
-    coeff -= (coeff_deriv / comments) * learning_rate
-    bias -= (bias_deriv / comments) * learning_rate
+#         # We subtract because the derivatives point in direction of steepest ascent
+#     coeff -= (coeff_deriv / comments) * learning_rate
+#     bias -= (bias_deriv / comments) * learning_rate
 
-    return coeff, bias
+#     return coeff, bias
 
+def hypothesis(x, theta):
+	return np.dot(
+			np.transpose(theta),
+			x
+		)
+
+def gradient_descent(x, y, weights, learning_rate, decay_rate, iterations=1500):
+	for iteration in range(iterations):
+        # for each of the weights
+		for j in range(len(weights)):
+			gradient = 0
+			for i in range(learning_rate):
+				gradient += (hypothesis(x[i], weights) - y[i]) * x[i][j]
+		gradient *= 1/learning_rate
+		weights[j] = weights[j] -  (decay_rate * gradient)
+		print(weights)
+	return weights	
 
 def read_json_file():
     file = open('./data/proj1_data.json', 'r')
@@ -108,11 +126,18 @@ def main():
     train, validation, test = split_data(data, 10000, 11000, 12000)
 
     top_words = count_top_words(train)
-    # print(top_words)
     
-    data_with_features, y_train = add_features(top_words, train)
-    coeff = calculate_closed_form(data_with_features, y_train)
-    print(calculate_gradient_descent(data_with_features, y_train,coeff,))
+    x_train, y_train = get_features(top_words, train)
+    coeffs1 = calculate_closed_form(x_train, y_train)
+    print("coeffs1")
+    print(coeffs1)
+    # coeffs2 = gradient_descent(x_train, y_train, np.zeros(coeffs1.shape), 500, 0.1)
+    # print("coeffs2")
+    # print(coeffs2)
+    # create a linear model and extract the parameters
+    coeffs_lm = OLS(y_train, x_train).fit().params
+    print('test coeffs')
+    print(coeffs_lm)
 
 if __name__ == '__main__':
     main()

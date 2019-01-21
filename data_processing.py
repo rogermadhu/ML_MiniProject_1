@@ -17,20 +17,30 @@ class OrderedCounter(Counter, OrderedDict):
 
 def add_features(top_words, data):
     # Word count feature
-    # 100 data points 
+    # 100 data points
+    x_train = np.zeros((10000, 161))
+    y_train = np.zeros(10000)
+    i = 0
     for data_point in data:
-        word_count_feature = np.zeros(160)
+        features = np.zeros(161)
         word_list = process_string(data_point['text'])
     
         for word in word_list:
             if word in top_words:
                 index = top_words.index(word)
-                word_count_feature[index] += 1
-        data_point["word_count_feature"] = word_count_feature
+                features[index] += 1
+        features[160] = 1
+        x_train[i] = features
+        y_train[i] = data_point["popularity_score"]
+        i = i+1
 
     # TODO: at least two more features: these can be 
     # based on the text data, transformations of the other numeric features, or interaction terms. 
-    return data
+    return x_train, y_train
+
+def calculate_closed_form(X, Y):
+    coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
+    return coeffs
 
 def read_json_file():
     file = open('./data/proj1_data.json', 'r')
@@ -79,8 +89,8 @@ def main():
     top_words = count_top_words(train)
     # print(top_words)
     
-    data_with_features = add_features(top_words, train)
-    print(data_with_features[3])
+    data_with_features, y_train = add_features(top_words, train)
+    print(calculate_closed_form(data_with_features, y_train))
 
 if __name__ == '__main__':
     main()

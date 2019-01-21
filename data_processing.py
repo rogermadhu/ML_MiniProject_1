@@ -42,6 +42,27 @@ def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
 
+def calculate_gradient_descent(X, Y, coeff, bias, learning_rate):
+    # def update_weights(radio, sales, weight, bias, learning_rate):
+    coeff_deriv = 0
+    bias_deriv = 0
+    comments = len(X.shape[0])
+
+    for i in range(comments):
+            # Calculate partial derivatives
+            # -2x(y - (mx + b))
+        coeff_deriv += -2 * X[i] * (Y[i] - (coeff * X[i] + bias))
+
+            # -2(y - (mx + b))
+        bias_deriv += -2 * (Y[i] - (coeff * X[i] + bias))
+
+        # We subtract because the derivatives point in direction of steepest ascent
+    coeff -= (coeff_deriv / comments) * learning_rate
+    bias -= (bias_deriv / comments) * learning_rate
+
+    return coeff, bias
+
+
 def read_json_file():
     file = open('./data/proj1_data.json', 'r')
     data= file.read()
@@ -90,7 +111,8 @@ def main():
     # print(top_words)
     
     data_with_features, y_train = add_features(top_words, train)
-    print(calculate_closed_form(data_with_features, y_train))
+    coeff = calculate_closed_form(data_with_features, y_train)
+    print(calculate_gradient_descent(data_with_features, y_train,coeff,))
 
 if __name__ == '__main__':
     main()

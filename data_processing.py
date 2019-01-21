@@ -7,8 +7,17 @@ from collections import *
 class OrderedCounter(Counter, OrderedDict):
     pass
 
+# array is 
+
+
+"""
+ Brainstormed features:
+ - sentiment analysis
+"""
+
 def add_features(top_words, data):
     # Word count feature
+    # 100 data points 
     for data_point in data:
         word_count_feature = np.zeros(160)
         word_list = process_string(data_point['text'])

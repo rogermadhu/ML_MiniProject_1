@@ -19,18 +19,23 @@ class OrderedCounter(Counter, OrderedDict):
 def get_features(top_words, data):
     # Word count feature
     # 100 data points
-    x_train = np.zeros((10000, 161))
+    x_train = np.zeros((10000, 164))
     y_train = np.zeros(10000)
     i = 0
     for data_point in data:
-        features = np.zeros(161)
+        features = np.zeros(164)
         word_list = process_string(data_point['text'])
     
         for word in word_list:
             if word in top_words:
                 index = top_words.index(word)
                 features[index] += 1
-        features[160] = 1
+
+        features[160] = data_point["controversiality"]
+        features[161] = data_point["children"]
+        features[162] = 1 if data_point["is_root"] else 0
+        features[163] = 1
+
         x_train[i] = features
         y_train[i] = data_point["popularity_score"]
         i = i+1
@@ -124,16 +129,20 @@ def main():
     top_words = count_top_words(train)
     
     x_train, y_train = get_features(top_words, train)
-    coeffs1 = calculate_closed_form(x_train, y_train)
-    print("coeffs1")
-    print(coeffs1)
+    # coeffs1 = calculate_closed_form(x_train, y_train)
+    # print("coeffs1")
+    # print(coeffs1)
     # coeffs2 = gradient_descent(x_train, y_train, np.zeros(coeffs1.shape), 500, 0.1)
     # print("coeffs2")
     # print(coeffs2)
     # create a linear model and extract the parameters
-    coeffs_lm = OLS(y_train, x_train).fit().params
-    print('test coeffs')
-    print(coeffs_lm)
+    # coeffs_lm = OLS(y_train, x_train).fit().params
+    # print('test coeffs')
+    # print(coeffs_lm)
+
+    weights = np.zeros(164)
+    print("Gradient Descent weights: \n", calculate_gradient_descent(x_train, y_train, weights, beta=0.1))
+    print("Closed Form weights: \n", calculate_closed_form(x_train, y_train))
 
 if __name__ == '__main__':
     main()

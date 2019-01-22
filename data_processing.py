@@ -42,25 +42,21 @@ def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
 
-def calculate_gradient_descent(X, Y, coeff, bias, learning_rate):
-    # def update_weights(radio, sales, weight, bias, learning_rate):
-    coeff_deriv = 0
-    bias_deriv = 0
-    comments = len(X.shape[0])
+def calculate_gradient_descent(X, y, init_weights, beta=0.0001, alpha=0.01, epsilon=10**-5):
+    error = 10
+    new_weights = init_weights
+    while error > epsilon:
+        weights = new_weights
 
-    for i in range(comments):
-            # Calculate partial derivatives
-            # -2x(y - (mx + b))
-        coeff_deriv += -2 * X[i] * (Y[i] - (coeff * X[i] + bias))
+        # the error was here, Prof mentioned in class that the learning rate
+        # should be scaled by 1/n where n = # training points
+        alpha = alpha / (1+beta) / len(y)
+        gradient = X.T.dot(X.dot(weights) - y)
+        new_weights = weights - 2* alpha * gradient
 
-            # -2(y - (mx + b))
-        bias_deriv += -2 * (Y[i] - (coeff * X[i] + bias))
+        error = np.linalg.norm((new_weights - weights),2)
 
-        # We subtract because the derivatives point in direction of steepest ascent
-    coeff -= (coeff_deriv / comments) * learning_rate
-    bias -= (bias_deriv / comments) * learning_rate
-
-    return coeff, bias
+    return new_weights
 
 
 def read_json_file():
@@ -112,7 +108,10 @@ def main():
     
     data_with_features, y_train = add_features(top_words, train)
     coeff = calculate_closed_form(data_with_features, y_train)
-    print(calculate_gradient_descent(data_with_features, y_train,coeff,))
 
+    #### GRADIENT DESCENT ####
+    weights = np.zeros(161)
+    print(calculate_gradient_descent(data_with_features, y_train, weights, beta=0.1))
+    print(calculate_closed_form(data_with_features, y_train))
 if __name__ == '__main__':
     main()

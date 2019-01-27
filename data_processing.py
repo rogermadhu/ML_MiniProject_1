@@ -96,6 +96,14 @@ def split_data(data, first_split, second_split, third_split):
 
     return train, validation, test
 
+def calculate_mean_squared_error(predicted_scores, actual_scores):
+    total_error = 0
+    for x, y in np.nditer([predicted_scores, actual_scores]):
+        squared_difference = (x - y)**2 
+        total_error += squared_difference
+    mean_squared_error = total_error / len(predicted_scores)
+    return mean_squared_error
+
 def main():
     data = read_json_file()
 
@@ -108,9 +116,29 @@ def main():
     
     x_train, y_train = get_features(top_words, train)
 
+    closed_form_weights = calculate_closed_form(x_train, y_train)
+    print("Closed Form weights: \n", closed_form_weights)
+
     weights = np.zeros(164)
-    print("Closed Form weights: \n", calculate_closed_form(x_train, y_train))
-    print("Gradient Descent weights: \n", calculate_gradient_descent(x_train, y_train, weights, beta=0.1))
+    gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
+    print("Gradient Descent weights: \n", gradient_descent_weights)
+    
+    print("Evaluating weights on validation dataset (closed form)")
+    x_validate, y_validate = get_features(top_words, validation)
+    predicted_scores_validate = x_validate.dot(closed_form_weights)
+    actual_scores_validate = y_validate
+
+    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
+    print("Mean squared error is " + str(error) + " for closed form weights.")
+
+    print("Evaluating weights on validation dataset (gradient descent)")
+    predicted_scores_validate = x_validate.dot(gradient_descent_weights)
+    actual_scores_validate = y_validate
+
+    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
+    print("Mean squared error is " + str(error) + " for gradient descent weights.")
+
+    
 
 if __name__ == '__main__':
     main()

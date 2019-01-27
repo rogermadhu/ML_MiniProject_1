@@ -44,19 +44,19 @@ def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
 
-def calculate_gradient_descent(X, y, init_weights, beta=0.0001, alpha=0.01, epsilon=10**-8):
+def calculate_gradient_descent(X, y, init_weights, beta=10**-9, alpha=10**-6, epsilon=4*10**-5):
     error = 10
     new_weights = init_weights
+
     while error > epsilon:
         weights = new_weights
 
         # the error was here, Prof mentioned in class that the learning rate
         # should be scaled by 1/n where n = # training points
-        alpha = alpha / (1+beta) / len(y)
         gradient = X.T.dot(X.dot(weights) - y)
-        new_weights = weights - 2* alpha * gradient
-
+        new_weights = weights - 2* alpha/(1+beta) * gradient
         error = np.linalg.norm((new_weights - weights),2)
+        # print(error)
 
     return new_weights
 

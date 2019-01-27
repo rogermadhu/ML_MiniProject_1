@@ -3,13 +3,9 @@ import json
 import string
 import operator
 from collections import *
-from statsmodels.regression.linear_model import OLS
 
 class OrderedCounter(Counter, OrderedDict):
     pass
-
-# array is 
-
 
 """
  Brainstormed features:
@@ -48,7 +44,7 @@ def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
 
-def calculate_gradient_descent(X, y, init_weights, beta=0.0001, alpha=0.01, epsilon=10**-5):
+def calculate_gradient_descent(X, y, init_weights, beta=0.0001, alpha=0.01, epsilon=10**-8):
     error = 10
     new_weights = init_weights
     while error > epsilon:
@@ -63,24 +59,6 @@ def calculate_gradient_descent(X, y, init_weights, beta=0.0001, alpha=0.01, epsi
         error = np.linalg.norm((new_weights - weights),2)
 
     return new_weights
-
-def hypothesis(x, theta):
-	return np.dot(
-			np.transpose(theta),
-			x
-		)
-
-def gradient_descent(x, y, weights, learning_rate, decay_rate, iterations=1500):
-	for iteration in range(iterations):
-        # for each of the weights
-		for j in range(len(weights)):
-			gradient = 0
-			for i in range(learning_rate):
-				gradient += (hypothesis(x[i], weights) - y[i]) * x[i][j]
-		gradient *= 1/learning_rate
-		weights[j] = weights[j] -  (decay_rate * gradient)
-		print(weights)
-	return weights	
 
 def read_json_file():
     file = open('./data/proj1_data.json', 'r')
@@ -129,20 +107,10 @@ def main():
     top_words = count_top_words(train)
     
     x_train, y_train = get_features(top_words, train)
-    # coeffs1 = calculate_closed_form(x_train, y_train)
-    # print("coeffs1")
-    # print(coeffs1)
-    # coeffs2 = gradient_descent(x_train, y_train, np.zeros(coeffs1.shape), 500, 0.1)
-    # print("coeffs2")
-    # print(coeffs2)
-    # create a linear model and extract the parameters
-    # coeffs_lm = OLS(y_train, x_train).fit().params
-    # print('test coeffs')
-    # print(coeffs_lm)
 
     weights = np.zeros(164)
-    print("Gradient Descent weights: \n", calculate_gradient_descent(x_train, y_train, weights, beta=0.1))
     print("Closed Form weights: \n", calculate_closed_form(x_train, y_train))
+    print("Gradient Descent weights: \n", calculate_gradient_descent(x_train, y_train, weights, beta=0.1))
 
 if __name__ == '__main__':
     main()

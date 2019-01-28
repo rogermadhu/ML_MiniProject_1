@@ -13,13 +13,14 @@ class OrderedCounter(Counter, OrderedDict):
 """
 
 def get_features(top_words, data):
-    # Word count feature
-    # 100 data points
-    x_train = np.zeros((10000, 164))
-    y_train = np.zeros(10000)
+    num_data_points = len(data)
+    num_features = len(top_words) + 4
+
+    x_train = np.zeros((num_data_points, num_features))
+    y_train = np.zeros(num_data_points)
     i = 0
     for data_point in data:
-        features = np.zeros(164)
+        features = np.zeros(num_features)
         word_list = process_string(data_point['text'])
     
         for word in word_list:
@@ -27,10 +28,10 @@ def get_features(top_words, data):
                 index = top_words.index(word)
                 features[index] += 1
 
-        features[160] = data_point["controversiality"]
-        features[161] = data_point["children"]
-        features[162] = 1 if data_point["is_root"] else 0
-        features[163] = 1
+        features[num_features - 4] = data_point["controversiality"]
+        features[num_features - 3] = data_point["children"]
+        features[num_features - 2] = 1 if data_point["is_root"] else 0
+        features[num_features - 1] = 1 # bias term
 
         x_train[i] = features
         y_train[i] = data_point["popularity_score"]
@@ -70,13 +71,12 @@ def read_json_file():
 def process_string(str):
     return str.lower().split(' ')
 
-def count_top_words(data):
-    print("Finding top words")
+def count_top_words(data, num_top_words):
     word_freq = OrderedCounter()
     for line in data:
         word_list = process_string(line['text'])
         word_freq.update(word_list)
-    most_common = dict(word_freq.most_common(160))
+    most_common = dict(word_freq.most_common(num_top_words))
     return list(most_common.keys())
 
 def split_data(data, first_split, second_split, third_split):
@@ -84,15 +84,12 @@ def split_data(data, first_split, second_split, third_split):
 
     for i in range(0, first_split):
         train.append(data[i])
-    print(("Created training dataset. Sample from training data: {}").format(train[0]))
 
     for i in range(first_split, second_split):
         validation.append(data[i])
-    print(("Created validation dataset. Sample from validation data: {}").format(validation[0]))
 
     for i in range(second_split, third_split):
         test.append(data[i]) 
-    print(("Created test dataset. Sample from validation data: {}").format(test[0]))
 
     return train, validation, test
 
@@ -104,6 +101,13 @@ def calculate_mean_squared_error(predicted_scores, actual_scores):
     mean_squared_error = total_error / len(predicted_scores)
     return mean_squared_error
 
+def evaluate_model(top_words, weights, dataset):
+    x_validate, y_validate = get_features(top_words, dataset)
+    predicted_scores_validate = x_validate.dot(weights)
+    actual_scores_validate = y_validate
+    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
+    return error 
+
 def main():
     data = read_json_file()
 
@@ -112,31 +116,64 @@ def main():
     """
     train, validation, test = split_data(data, 10000, 11000, 12000)
 
-    top_words = count_top_words(train)
+    top_words = count_top_words(train, 160) # top 160 words
     
     x_train, y_train = get_features(top_words, train)
 
+    """
+    Calculate closed form and gradient descent weights.
+    """
     closed_form_weights = calculate_closed_form(x_train, y_train)
-    print("Closed Form weights: \n", closed_form_weights)
+    closed_form_error = evaluate_model(top_words, closed_form_weights, train)
+    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the training set.")
 
     weights = np.zeros(164)
     gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
-    print("Gradient Descent weights: \n", gradient_descent_weights)
-    
-    print("Evaluating weights on validation dataset (closed form)")
-    x_validate, y_validate = get_features(top_words, validation)
-    predicted_scores_validate = x_validate.dot(closed_form_weights)
-    actual_scores_validate = y_validate
+    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, train)
+    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the training set.")
+ 
+    # print out weights, include in report
+    """
+    Evaluate closed form and gradient descent weights.
+    """
+    closed_form_error = evaluate_model(top_words, closed_form_weights, validation)
+    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the validation set.")
 
-    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
-    print("Mean squared error is " + str(error) + " for closed form weights.")
+    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, validation)
+    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the validation set.")
 
-    print("Evaluating weights on validation dataset (gradient descent)")
-    predicted_scores_validate = x_validate.dot(gradient_descent_weights)
-    actual_scores_validate = y_validate
+    """
+    Create and evaluate models with no text features, top 60 words, and top 160 words
+    """
+    # no text features
+    no_text_x_train, no_text_y_train = get_features([], train)
+    no_text_closed_form_weights = calculate_closed_form(no_text_x_train, no_text_y_train)
+    no_text_training_error = evaluate_model([], no_text_closed_form_weights, train)
+    no_text_validation_error = evaluate_model([], no_text_closed_form_weights, validation)
+    print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
+    print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
 
-    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
-    print("Mean squared error is " + str(error) + " for gradient descent weights.")
+    # top 60 words
+    top_words = count_top_words(train, 60)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
+
+    # top 160 words
+    top_words = count_top_words(train, 160)
+    top160_x_train, top60_y_train = get_features(top_words, train)
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top60_y_train)
+    top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
+    top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
+    print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
+
+
+
+
 
     
 

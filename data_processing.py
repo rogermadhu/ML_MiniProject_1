@@ -3,6 +3,8 @@ import json
 import string
 import operator
 from collections import *
+import matplotlib.pyplot as plt
+from nltk import sent_tokenize, word_tokenize
 
 class OrderedCounter(Counter, OrderedDict):
     pass
@@ -79,6 +81,61 @@ def count_top_words(data, num_top_words):
     most_common = dict(word_freq.most_common(num_top_words))
     return list(most_common.keys())
 
+def count_words(data):
+    words_count = list()
+    for line in data:
+        count = len(line['text'].split())
+        words_count.append(count)
+    return list(words_count)
+
+def avg_word_size(sentence):
+  words = sentence.split()
+  return (sum(len(word) for word in words)/len(words))
+
+def avg_words_len(data):
+    avg = list()
+    for line in data:
+        count = avg_word(line['text'])
+        avg.append(count)
+    return list(avg)
+
+def find_urls(data):
+    import re
+    count_links = list()
+    for line in data:
+        count_links.append(len(re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', line['text'])))
+    return list(count_links)
+
+def extract_keywords(data):
+    import RAKE
+    from RAKE import SmartStopList
+
+    stoplist = SmartStopList()
+    Rake_obj = RAKE.Rake(stoplist)
+
+    keywords_count = list()
+    for line in data:
+        keywords = Rake_obj.run(line['text'])
+        keywords_count.append(len(keywords))
+    return keywords_count
+
+def avg_keyword(data):
+    import RAKE
+    from RAKE import SmartStopList
+
+    stoplist = SmartStopList()
+    Rake_obj = RAKE.Rake(stoplist)
+    keywords_avg = list()
+    for line in data:
+        line_len = len(line['text'].split())
+        keywords = Rake_obj.run(line['text'])
+        keywords_count = len(keywords)
+        if keywords_count > 0:
+            keywords_avg.append(float(line_len/keywords_count))
+        else:
+            keywords_avg.append(0)
+    return keywords_avg
+
 def split_data(data, first_split, second_split, third_split):
     train, validation, test = [], [], []
 
@@ -120,60 +177,63 @@ def main():
     
     x_train, y_train = get_features(top_words, train)
 
-    """
-    Calculate closed form and gradient descent weights.
-    """
-    closed_form_weights = calculate_closed_form(x_train, y_train)
-    closed_form_error = evaluate_model(top_words, closed_form_weights, train)
-    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the training set.")
+    # """
+    # Calculate closed form and gradient descent weights.
+    # """
+    # closed_form_weights = calculate_closed_form(x_train, y_train)
+    # closed_form_error = evaluate_model(top_words, closed_form_weights, train)
+    # print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the training set.")
 
-    weights = np.zeros(164)
-    gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
-    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, train)
-    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the training set.")
+    # weights = np.zeros(164)
+    # gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
+    # gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, train)
+    # print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the training set.")
  
-    # print out weights, include in report
-    """
-    Evaluate closed form and gradient descent weights.
-    """
-    closed_form_error = evaluate_model(top_words, closed_form_weights, validation)
-    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the validation set.")
+    # # print out weights, include in report
+    # """
+    # Evaluate closed form and gradient descent weights.
+    # """
+    # closed_form_error = evaluate_model(top_words, closed_form_weights, validation)
+    # print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the validation set.")
 
-    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, validation)
-    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the validation set.")
+    # gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, validation)
+    # print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the validation set.")
 
-    """
-    Create and evaluate models with no text features, top 60 words, and top 160 words
-    """
-    # no text features
-    no_text_x_train, no_text_y_train = get_features([], train)
-    no_text_closed_form_weights = calculate_closed_form(no_text_x_train, no_text_y_train)
-    no_text_training_error = evaluate_model([], no_text_closed_form_weights, train)
-    no_text_validation_error = evaluate_model([], no_text_closed_form_weights, validation)
-    print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
-    print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
+    # """
+    # Create and evaluate models with no text features, top 60 words, and top 160 words
+    # """
+    # # no text features
+    # no_text_x_train, no_text_y_train = get_features([], train)
+    # no_text_closed_form_weights = calculate_closed_form(no_text_x_train, no_text_y_train)
+    # no_text_training_error = evaluate_model([], no_text_closed_form_weights, train)
+    # no_text_validation_error = evaluate_model([], no_text_closed_form_weights, validation)
+    # print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
+    # print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
 
-    # top 60 words
-    top_words = count_top_words(train, 60)
-    top60_x_train, top60_y_train = get_features(top_words, train)
-    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
-    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
-    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
-    print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
-    print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
+    # # top 60 words
+    # top_words = count_top_words(train, 60)
+    # top60_x_train, top60_y_train = get_features(top_words, train)
+    # top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    # top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    # top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    # print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
+    # print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
 
-    # top 160 words
-    top_words = count_top_words(train, 160)
-    top160_x_train, top60_y_train = get_features(top_words, train)
-    top160_closed_form_weights = calculate_closed_form(top160_x_train, top60_y_train)
-    top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
-    top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
-    print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
-    print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
+    # # top 160 words
+    # top_words = count_top_words(train, 160)
+    # top160_x_train, top60_y_train = get_features(top_words, train)
+    # top160_closed_form_weights = calculate_closed_form(top160_x_train, top60_y_train)
+    # top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
+    # top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
+    # print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
+    # print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
 
-
-
-
+    cnt_words = count_words(train)
+    avg_word_siz = avg_word_size(train)
+    avg_words_length = avg_words_len(train)
+    fd_urls = find_urls(train)
+    ext_keywords = extract_keywords(train)
+    avg_kywd = avg_keyword(train)
 
     
 

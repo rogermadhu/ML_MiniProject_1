@@ -43,6 +43,53 @@ def get_features(top_words, data):
     # based on the text data, transformations of the other numeric features, or interaction terms. 
     return x_train, y_train
 
+def get_features_extra(top_words, data, features_list, f_size):
+    
+    num_data_points = len(data)
+    num_features = len(top_words) + 4 + f_size
+
+    x_train = np.zeros((num_data_points, num_features))
+    y_train = np.zeros(num_data_points)
+    i = 0
+    for data_point in data:
+        features = np.zeros(num_features)
+        word_list = process_string(data_point['text'])
+    
+        for word in word_list:
+            if word in top_words:
+                index = top_words.index(word)
+                features[index] += 1
+        temp_f_size = f_size
+        if len(features_list) > 0:
+            for feats in features_list:
+                if feats == "count_words":
+                    features[num_features - 4 - temp_f_size] = count_words(data_point["text"])
+                    temp_f_size += -1
+                elif feats == "avg_words_len":
+                    features[num_features - 4 - temp_f_size] = avg_words_len(data_point["text"])
+                    temp_f_size += -1
+                elif feats == "find_urls":
+                    features[num_features - 4 - temp_f_size] = find_urls(data_point["text"])
+                    temp_f_size += -1
+                elif feats == "extract_keywords":
+                    features[num_features - 4 - temp_f_size] = extract_keywords(data_point["text"])
+                    temp_f_size += -1
+                elif feats == "avg_keyword":
+                    features[num_features - 4 - temp_f_size] = avg_keyword(data_point["text"])
+                    temp_f_size += -1
+        features[num_features - 4] = data_point["controversiality"]
+        features[num_features - 3] = data_point["children"]
+        features[num_features - 2] = 1 if data_point["is_root"] else 0
+        features[num_features - 1] = 1 # bias term
+
+        x_train[i] = features
+        y_train[i] = data_point["popularity_score"]
+        i = i+1
+
+    # TODO: at least two more features: these can be 
+    # based on the text data, transformations of the other numeric features, or interaction terms. 
+    return x_train, y_train
+
 def calculate_closed_form(X, Y):
     coeffs = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(Y)
     return coeffs
@@ -81,60 +128,40 @@ def count_top_words(data, num_top_words):
     most_common = dict(word_freq.most_common(num_top_words))
     return list(most_common.keys())
 
-def count_words(data):
-    words_count = list()
-    for line in data:
-        count = len(line['text'].split())
-        words_count.append(count)
-    return list(words_count)
+def count_words(str):
+    count = len(str.split())
+    return count
 
-def avg_word_size(sentence):
-  words = sentence.split()
+def avg_words_len(str):
+  words = str.split()
   return (sum(len(word) for word in words)/len(words))
 
-def avg_words_len(data):
-    avg = list()
-    for line in data:
-        count = avg_word(line['text'])
-        avg.append(count)
-    return list(avg)
-
-def find_urls(data):
+def find_urls(str):
     import re
-    count_links = list()
-    for line in data:
-        count_links.append(len(re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', line['text'])))
-    return list(count_links)
+    num_links = len(re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', str))
+    return num_links
 
-def extract_keywords(data):
+def extract_keywords(str):
     import RAKE
     from RAKE import SmartStopList
-
     stoplist = SmartStopList()
     Rake_obj = RAKE.Rake(stoplist)
-
-    keywords_count = list()
-    for line in data:
-        keywords = Rake_obj.run(line['text'])
-        keywords_count.append(len(keywords))
+    keywords_count = len(Rake_obj.run(str))
     return keywords_count
 
-def avg_keyword(data):
+def avg_keyword(str):
     import RAKE
     from RAKE import SmartStopList
 
     stoplist = SmartStopList()
     Rake_obj = RAKE.Rake(stoplist)
-    keywords_avg = list()
-    for line in data:
-        line_len = len(line['text'].split())
-        keywords = Rake_obj.run(line['text'])
-        keywords_count = len(keywords)
-        if keywords_count > 0:
-            keywords_avg.append(float(line_len/keywords_count))
-        else:
-            keywords_avg.append(0)
-    return keywords_avg
+    line_len = len(str.split())
+    keywords = Rake_obj.run(str)
+    keywords_count = len(keywords)
+    if keywords_count > 0:
+        return float(line_len/keywords_count)
+    else:
+        return 0
 
 def split_data(data, first_split, second_split, third_split):
     train, validation, test = [], [], []
@@ -163,7 +190,14 @@ def evaluate_model(top_words, weights, dataset):
     predicted_scores_validate = x_validate.dot(weights)
     actual_scores_validate = y_validate
     error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
-    return error 
+    return error
+
+def evaluate_model_extra_feats(top_words, weights, dataset, features_lst, feat_size):
+    x_validate, y_validate = get_features_extra(top_words, dataset, features_lst, feat_size)
+    predicted_scores_validate = x_validate.dot(weights)
+    actual_scores_validate = y_validate
+    error = calculate_mean_squared_error(predicted_scores_validate, actual_scores_validate)
+    return error
 
 def main():
     data = read_json_file()
@@ -221,19 +255,29 @@ def main():
 
     # # top 160 words
     # top_words = count_top_words(train, 160)
-    # top160_x_train, top60_y_train = get_features(top_words, train)
-    # top160_closed_form_weights = calculate_closed_form(top160_x_train, top60_y_train)
+    # top160_x_train, top160_y_train = get_features(top_words, train)
+    # top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
     # top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
     # top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
     # print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
     # print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
 
-    cnt_words = count_words(train)
-    avg_word_siz = avg_word_size(train)
-    avg_words_length = avg_words_len(train)
-    fd_urls = find_urls(train)
-    ext_keywords = extract_keywords(train)
-    avg_kywd = avg_keyword(train)
+    """
+    Task 3: 3. Using Closed-Form approach Introducing combination of six new features proposed improve performance on the validation set
+    List of Features ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+    Just copy paste in features_lst
+    """
+    # top 160 words
+    top_words = count_top_words(train, 160)
+    features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
+
+    
 
     
 

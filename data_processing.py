@@ -160,6 +160,21 @@ def extract_keywords(str):
     Rake_obj = RAKE.Rake(stoplist)
     keywords_count = len(Rake_obj.run(str))
     return keywords_count
+#
+# def avg_word_len(str):
+#     words = str.split()
+#     total = 0
+#     for w in words:
+#         total = total+len
+#     stoplist = SmartStopList()
+#     Rake_obj = RAKE.Rake(stoplist)
+#     line_len = len(str.split())
+#     keywords = Rake_obj.run(str)
+#     keywords_count = len(keywords)
+#     if keywords_count > 0:
+#         return float(line_len/keywords_count)
+#     else:
+#         return 0
 
 def avg_keyword(str):
     stoplist = SmartStopList()
@@ -187,7 +202,10 @@ def bigrams(str):
     return len(bigrams)
 
 def keyword_children(text, children):
-    #Keyword to children weight
+    # Keyword to children weight
+    # How the number of keywords in the text creates further discussion through children
+    # without the -1 the validation MSE doesn't change by a lot, using -1 we add bias towards comments which has 1 children, ignore comments with 1 children
+    # function adds more weight to the comments with more than 1 children
     if (extract_keywords(text) > 1) and (children > 0):
         if children > 2:
             return children-1
@@ -195,6 +213,7 @@ def keyword_children(text, children):
     return 0
 
 def specialchar_children(text, children):
+    # Amount of special characters lead to more popularity and causes more children
     import re
     ret = re.split(r'[\(\n)\\_+\[\]\:|<,\.\.\./]', text)
     if len(ret) > 1:
@@ -307,6 +326,24 @@ def main():
     # Just copy paste in features_lst
     # """
 
+#################################################################################################################################
+    # # top 60 words
+    all_features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword", "sentiment", "sc", "kc"]
+    for word in all_features_lst:
+        top_words = count_top_words(train, 60)
+        # features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+        features_lst = [word]
+        top60_x_train, top60_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+        top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+        # top60_training_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, train, features_lst, len(features_lst))
+        top60_validation_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, validation, features_lst, len(features_lst))
+        # training_error = str(top60_training_error)
+        validation_error = str(top60_validation_error)
+        # print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]' )
+        print(str(word), str(validation_error) )
+        print('')
+#################################################################################################################################
+
     # # top 160 words
     # top_words = count_top_words(train, 160)
     # features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
@@ -379,16 +416,16 @@ def main():
     
     # print("starting 60")
 
-    top_words = count_top_words(train, 60)
-    features_lst = ["kc", "sc"]
-    top60_x_train, top60_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
-    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
-    top60_training_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, train, features_lst, len(features_lst))
-    top60_validation_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, validation, features_lst, len(features_lst))
-    training_error = str(top60_training_error)
-    validation_error = str(top60_validation_error)
-    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["sentiment"]' )
-    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["sentiment"]' )
+    # top_words = count_top_words(train, 60)
+    # features_lst = ["kc", "sc"]
+    # top60_x_train, top60_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    # top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    # top60_training_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, train, features_lst, len(features_lst))
+    # top60_validation_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, validation, features_lst, len(features_lst))
+    # training_error = str(top60_training_error)
+    # validation_error = str(top60_validation_error)
+    # print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["sentiment"]' )
+    # print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["sentiment"]' )
 
     # # top 60 words
     # top_words = count_top_words(train, 60)

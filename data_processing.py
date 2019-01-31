@@ -153,6 +153,15 @@ def main():
     print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
     print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
 
+    # top 30 words
+    top_words = count_top_words(train, 30)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 30-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 30-word features model on the validation set. (closed form)" )
+
     # top 60 words
     top_words = count_top_words(train, 60)
     top60_x_train, top60_y_train = get_features(top_words, train)
@@ -161,6 +170,33 @@ def main():
     top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
     print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
     print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
+
+    # top 90
+    top_words = count_top_words(train, 90)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 90-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 90-word features model on the validation set. (closed form)" )
+
+    # top 120
+    top_words = count_top_words(train, 120)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 120-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 120-word features model on the validation set. (closed form)" )
+
+    # top 150
+    top_words = count_top_words(train, 150)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 150-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 150-word features model on the validation set. (closed form)" )
 
     # top 160 words
     top_words = count_top_words(train, 160)

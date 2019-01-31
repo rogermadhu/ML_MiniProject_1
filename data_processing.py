@@ -211,56 +211,56 @@ def main():
     
     x_train, y_train = get_features(top_words, train)
 
-    # """
-    # Calculate closed form and gradient descent weights.
-    # """
-    # closed_form_weights = calculate_closed_form(x_train, y_train)
-    # closed_form_error = evaluate_model(top_words, closed_form_weights, train)
-    # print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the training set.")
+    """
+    Calculate closed form and gradient descent weights.
+    """
+    closed_form_weights = calculate_closed_form(x_train, y_train)
+    closed_form_error = evaluate_model(top_words, closed_form_weights, train)
+    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the training set.")
 
-    # weights = np.zeros(164)
-    # gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
-    # gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, train)
-    # print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the training set.")
+    weights = np.zeros(164)
+    gradient_descent_weights = calculate_gradient_descent(x_train, y_train, weights, beta=0.1)
+    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, train)
+    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the training set.")
  
-    # # print out weights, include in report
-    # """
-    # Evaluate closed form and gradient descent weights.
-    # """
-    # closed_form_error = evaluate_model(top_words, closed_form_weights, validation)
-    # print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the validation set.")
+    # print out weights, include in report
+    """
+    Evaluate closed form and gradient descent weights.
+    """
+    closed_form_error = evaluate_model(top_words, closed_form_weights, validation)
+    print("Mean squared error is " + str(closed_form_error) + " for closed form weights on the validation set.")
 
-    # gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, validation)
-    # print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the validation set.")
+    gradient_descent_error = evaluate_model(top_words, gradient_descent_weights, validation)
+    print("Mean squared error is " + str(gradient_descent_error) + " for gradient descent weights on the validation set.")
 
-    # """
-    # Create and evaluate models with no text features, top 60 words, and top 160 words
-    # """
-    # # no text features
-    # no_text_x_train, no_text_y_train = get_features([], train)
-    # no_text_closed_form_weights = calculate_closed_form(no_text_x_train, no_text_y_train)
-    # no_text_training_error = evaluate_model([], no_text_closed_form_weights, train)
-    # no_text_validation_error = evaluate_model([], no_text_closed_form_weights, validation)
-    # print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
-    # print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
+    """
+    Create and evaluate models with no text features, top 60 words, and top 160 words
+    """
+    # no text features
+    no_text_x_train, no_text_y_train = get_features([], train)
+    no_text_closed_form_weights = calculate_closed_form(no_text_x_train, no_text_y_train)
+    no_text_training_error = evaluate_model([], no_text_closed_form_weights, train)
+    no_text_validation_error = evaluate_model([], no_text_closed_form_weights, validation)
+    print("MSE is " + str(no_text_training_error) + " for no-text features model on the training set. (closed form)" )
+    print("MSE is " + str(no_text_validation_error) + " for no-text features model on the validation set. (closed form)" )
 
-    # # top 60 words
-    # top_words = count_top_words(train, 60)
-    # top60_x_train, top60_y_train = get_features(top_words, train)
-    # top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
-    # top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
-    # top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
-    # print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
-    # print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
+    # top 60 words
+    top_words = count_top_words(train, 60)
+    top60_x_train, top60_y_train = get_features(top_words, train)
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model(top_words, top60_closed_form_weights, train)
+    top60_validation_error = evaluate_model(top_words, top60_closed_form_weights, validation)
+    print("MSE is " + str(top60_training_error) + " for 60-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top60_validation_error) + " for 60-word features model on the validation set. (closed form)" )
 
-    # # top 160 words
-    # top_words = count_top_words(train, 160)
-    # top160_x_train, top160_y_train = get_features(top_words, train)
-    # top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
-    # top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
-    # top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
-    # print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
-    # print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
+    # top 160 words
+    top_words = count_top_words(train, 160)
+    top160_x_train, top160_y_train = get_features(top_words, train)
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model(top_words, top160_closed_form_weights, train)
+    top160_validation_error = evaluate_model(top_words, top160_closed_form_weights, validation)
+    print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
+    print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
 
     """
     Task 3: 3. Using Closed-Form approach Introducing combination of six new features proposed improve performance on the validation set
@@ -274,12 +274,191 @@ def main():
     top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
     top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
     top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
-    print("MSE is " + str(top160_training_error) + " for 160-word features model on the training set. (closed form)" )
-    print("MSE is " + str(top160_validation_error) + " for 160-word features model on the validation set. (closed form)" )
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]' )
+    print('')
 
-    
+    top_words = count_top_words(train, 160)
+    features_lst = ["count_words","avg_words_len","find_urls","extract_keywords"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]' )
+    print('')
 
+    top_words = count_top_words(train, 160)
+    features_lst = ["count_words","avg_words_len","find_urls"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls"]' )
+    print('')
+
+    top_words = count_top_words(train, 160)
+    features_lst = ["count_words","avg_words_len"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["count_words","avg_words_len"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len"]' )
+
+    top_words = count_top_words(train, 160)
+    features_lst = ["extract_keywords","avg_keyword"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["extract_keywords","avg_keyword"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["extract_keywords","avg_keyword"]' )
+
+    top_words = count_top_words(train, 160)
+    features_lst = ["count_words","extract_keywords"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 160-word features model on the training set. (closed form) ["count_words","extract_keywords"]' )
+    print("MSE is " + str(validation_error) + ' for 160-word features model on the validation set. (closed form) ["count_words","extract_keywords"]' )
     
+    print("starting 60")
+
+    top_words = count_top_words(train, 60)
+    features_lst = ["count_words","extract_keywords"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","extract_keywords"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["count_words","extract_keywords"]' )
+
+    # top 60 words
+    top_words = count_top_words(train, 60)
+    features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]' )
+    print('')
+
+    top_words = count_top_words(train, 60)
+    features_lst = ["count_words","avg_words_len","find_urls","extract_keywords"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]' )
+    print('')
+
+    top_words = count_top_words(train, 60)
+    features_lst = ["count_words","avg_words_len","find_urls"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls"]' )
+    print('')
+
+    top_words = count_top_words(train, 60)
+    features_lst = ["count_words","avg_words_len"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["count_words","avg_words_len"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len"]' )
+
+    top_words = count_top_words(train, 60)
+    features_lst = ["extract_keywords","avg_keyword"]
+    top160_x_train, top160_y_train = get_features_extra(top_words, train, features_lst, len(features_lst))
+    top160_closed_form_weights = calculate_closed_form(top160_x_train, top160_y_train)
+    top160_training_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, train, features_lst, len(features_lst))
+    top160_validation_error = evaluate_model_extra_feats(top_words, top160_closed_form_weights, validation, features_lst, len(features_lst))
+    training_error = str(top160_training_error)
+    validation_error = str(top160_validation_error)
+    print("MSE is " + str(training_error) + ' for 60-word features model on the training set. (closed form) ["extract_keywords","avg_keyword"]' )
+    print("MSE is " + str(validation_error) + ' for 60-word features model on the validation set. (closed form) ["extract_keywords","avg_keyword"]' )
+
+"""
+MSE is 1.0458993305987312 for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+MSE is 0.985558231296495 for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+Difference: 0.0603410993022351
+
+MSE is 1.0466443274695258 for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]
+MSE is 0.988606687424817 for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]
+Difference: 0.0580376400447030
+
+MSE is 1.04682623890494 for 160-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls"]
+MSE is 0.9893830598686777 for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls"]
+Difference: 0.0574431790362631
+
+MSE is 1.0468268069157576 for 160-word features model on the training set. (closed form) ["count_words","avg_words_len"]
+MSE is 0.9893884011669069 for 160-word features model on the validation set. (closed form) ["count_words","avg_words_len"]
+Difference: 0.0574384057488441
+
+MSE is 1.0461456589456841 for 160-word features model on the training set. (closed form) ["extract_keywords","avg_keyword"]
+MSE is 0.9864798298937568 for 160-word features model on the validation set. (closed form) ["extract_keywords","avg_keyword"]
+Difference: 0.0596658290519239
+
+MSE is 1.0467082484792412 for 160-word features model on the training set. (closed form) ["count_words","extract_keywords"]
+MSE is 0.989115373691621 for 160-word features model on the validation set. (closed form) ["count_words","extract_keywords"]
+Difference: 0.0596658290519239
+
+starting 60
+MSE is 1.0593746004140236 for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+MSE is 0.9798744754406972 for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
+Difference: 0.0795001249733231
+
+MSE is 1.0601548886533734 for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]
+MSE is 0.9821912344357807 for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls","extract_keywords"]
+Difference: 0.0779636542175900
+
+MSE is 1.0602082743190757 for 60-word features model on the training set. (closed form) ["count_words","avg_words_len","find_urls"]
+MSE is 0.9826271472126821 for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len","find_urls"]
+Difference: 0.0775811271063880
+
+MSE is 1.0602088279189974 for 60-word features model on the training set. (closed form) ["count_words","avg_words_len"]
+MSE is 0.9826229317339635 for 60-word features model on the validation set. (closed form) ["count_words","avg_words_len"]
+Difference: 0.0775858961850271
+
+MSE is 1.059458282917423 for 60-word features model on the training set. (closed form) ["extract_keywords","avg_keyword"]
+MSE is 0.9797631310632505 for 60-word features model on the validation set. (closed form) ["extract_keywords","avg_keyword"]
+Difference: 0.0796951518541700
+
+MSE is 1.0601800211863246 for 60-word features model on the training set. (closed form) ["count_words","extract_keywords"]
+MSE is 0.9825485864626804 for 60-word features model on the validation set. (closed form) ["count_words","extract_keywords"]
+Difference: 0.0776314347236400
+"""
 
 if __name__ == '__main__':
     main()

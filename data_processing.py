@@ -11,11 +11,6 @@ from RAKE import SmartStopList
 class OrderedCounter(Counter, OrderedDict):
     pass
 
-"""
- Brainstormed features:
- - sentiment analysis
-"""
-
 def get_features(top_words, data):
     num_data_points = len(data)
     num_features = len(top_words) + 4
@@ -35,14 +30,12 @@ def get_features(top_words, data):
         features[num_features - 4] = data_point["controversiality"]
         features[num_features - 3] = data_point["children"]
         features[num_features - 2] = 1 if data_point["is_root"] else 0
-        features[num_features - 1] = 1 # bias term
+        features[num_features - 1] = 1 
 
         x_train[i] = features
         y_train[i] = data_point["popularity_score"]
         i = i+1
 
-    # TODO: at least two more features: these can be 
-    # based on the text data, transformations of the other numeric features, or interaction terms. 
     return x_train, y_train
 
 def get_features_extra(top_words, data, features_list, f_size):
@@ -100,8 +93,6 @@ def get_features_extra(top_words, data, features_list, f_size):
         y_train[i] = data_point["popularity_score"]
         i = i+1
 
-    # TODO: at least two more features: these can be 
-    # based on the text data, transformations of the other numeric features, or interaction terms. 
     return x_train, y_train
 
 def calculate_closed_form(X, Y):
@@ -120,7 +111,6 @@ def calculate_gradient_descent(X, y, init_weights, beta=10**-9, alpha=10**-6, ep
         gradient = X.T.dot(X.dot(weights) - y)
         new_weights = weights - 2* alpha/(1+beta) * gradient
         error = np.linalg.norm((new_weights - weights),2)
-        # print(error)
 
     return new_weights
 
@@ -160,21 +150,6 @@ def extract_keywords(str):
     Rake_obj = RAKE.Rake(stoplist)
     keywords_count = len(Rake_obj.run(str))
     return keywords_count
-#
-# def avg_word_len(str):
-#     words = str.split()
-#     total = 0
-#     for w in words:
-#         total = total+len
-#     stoplist = SmartStopList()
-#     Rake_obj = RAKE.Rake(stoplist)
-#     line_len = len(str.split())
-#     keywords = Rake_obj.run(str)
-#     keywords_count = len(keywords)
-#     if keywords_count > 0:
-#         return float(line_len/keywords_count)
-#     else:
-#         return 0
 
 def avg_keyword(str):
     stoplist = SmartStopList()
@@ -267,6 +242,29 @@ def main():
 
     top_words = count_top_words(train, 160) # top 160 words
     
+    """
+    EXPERIMENTS - feel free to comment this back in.  
+    """
+    # top 60 words + extra features => best model
+    best_features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword", "sc", "kc"]
+
+    """
+    BEST MODEL
+    """
+    # for word in all_features_lst:
+    top_words = count_top_words(train, 60)
+    top60_x_train, top60_y_train = get_features_extra(top_words, train, best_features_lst, len(best_features_lst))
+
+    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
+    top60_training_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, train, best_features_lst, len(best_features_lst))
+    top60_validation_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, validation, best_features_lst, len(best_features_lst))
+    top60_test_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, test, best_features_lst, len(best_features_lst))
+
+    print("MSE is " + str(top60_training_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the training set. (closed form)' )
+    print("MSE is " + str(top60_validation_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the validation set. (closed form)' )
+    print("MSE is " + str(top60_test_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the test set. (closed form)' )
+
+
     #x_train, y_train = get_features(top_words, train)
 
     # """
@@ -325,24 +323,6 @@ def main():
     # List of Features ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword"]
     # Just copy paste in features_lst
     # """
-
-#################################################################################################################################
-    # # top 60 words + extra features => best model
-    best_features_lst = ["count_words","avg_words_len","find_urls","extract_keywords","avg_keyword", "sc", "kc"]
-    # for word in all_features_lst:
-    top_words = count_top_words(train, 60)
-    top60_x_train, top60_y_train = get_features_extra(top_words, train, best_features_lst, len(best_features_lst))
-
-    top60_closed_form_weights = calculate_closed_form(top60_x_train, top60_y_train)
-    top60_training_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, train, best_features_lst, len(best_features_lst))
-    top60_validation_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, validation, best_features_lst, len(best_features_lst))
-    top60_test_error = evaluate_model_extra_feats(top_words, top60_closed_form_weights, test, best_features_lst, len(best_features_lst))
-
-    print("MSE is " + str(top60_training_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the training set. (closed form)' )
-    print("MSE is " + str(top60_validation_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the validation set. (closed form)' )
-    print("MSE is " + str(top60_test_error) + ' for 60-word + [count_words, avg_words_len, find_urls, extract_keywords, avg_keyword, sc, kc] features model on the test set. (closed form)' )
-
-#################################################################################################################################
 
     # # top 160 words
     # top_words = count_top_words(train, 160)
